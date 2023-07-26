@@ -4,6 +4,8 @@
     'depends': ['base'],
     'data': [
         'security/ir.model.access.csv',
+        'views/estate_views.xml',
+        'views/estate_menus.xml',
     ],
     'author': "Author Name",
     'category': 'Category',
