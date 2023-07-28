@@ -1,5 +1,5 @@
 from dateutil.relativedelta import relativedelta
-from odoo import models, fields
+from odoo import models, fields, api
 
 
 class EstateProperty(models.Model):
@@ -10,7 +10,7 @@ class EstateProperty(models.Model):
     description = fields.Text()
     postcode = fields.Char()
     date_availability = fields.Date('Available From',
-        copy=False, 
+        copy=False,
         default=lambda self: fields.Date.today() + relativedelta(months=3)
     )
     expected_price = fields.Float(required=True)
@@ -46,3 +46,26 @@ class EstateProperty(models.Model):
                                   default=lambda self: self._uid)
     offer_ids = fields.One2many('estate.property.offer', 'property_id',
                                 string='Offer')
+    total_area = fields.Integer(compute='_compute_total_area',
+                                string='Total Area (sqm)')
+    best_price = fields.Float(compute='_compute_best_price',
+                              string='Best Offer')
+
+    @api.depends('living_area', 'garden_area')
+    def _compute_total_area(self):
+        for record in self:
+            record.total_area = record.living_area + record.garden_area
+
+    @api.depends('offer_ids.price')
+    def _compute_best_price(self):
+        for record in self:
+            record.best_price = max(record.mapped('offer_ids.price'))
+
+    @api.onchange('garden')
+    def _onchange_garden(self):
+        if self.garden:
+            self.garden_area = 10
+            self.garden_orientation = 'north'
+        else:
+            self.garden_area = 0
+            self.garden_orientation = None

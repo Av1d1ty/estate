@@ -45,19 +45,20 @@
 
                     <group>
                         <group>
-                            <field name="state"/>
-                            <field name="postcode"/>
                             <field name="property_type_id"/>
+                            <field name="postcode"/>
+                            <field name="date_availability"/>
                         </group>
                         <group>
-                            <field name="date_availability"/>
                             <field name="expected_price"/>
+                            <field name="best_price"/>
                             <field name="selling_price"/>
                         </group>
                         <notebook>
                             <page string="Description">
                                 <field name="description"/>
                                 <group>
+                                    <field name="state"/>
                                     <field name="bedrooms"/>
                                     <field name="living_area"/>
                                     <field name="facades"/>
@@ -65,13 +66,16 @@
                                     <field name="garden"/>
                                     <field name="garden_area"/>
                                     <field name="garden_orientation"/>
+                                    <field name="total_area"/>
                                 </group>
                             </page>
                             <page string="Offers">
-                                <field name="offer_ids">
-                                    <tree editable="bottom">
+                                <field name="offer_ids" editable="bottom">
+                                    <tree>
                                         <field name="price"/>
                                         <field name="partner_id"/>
+                                        <field name="validity"/>
+                                        <field name="date_deadline"/>
                                         <field name="status"/>
                                     </tree>
                                 </field>
