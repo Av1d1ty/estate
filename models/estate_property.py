@@ -1,5 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from odoo import models, fields, api, exceptions
+from odoo.tools import float_utils
 
 
 class EstateProperty(models.Model):
@@ -51,15 +52,34 @@ class EstateProperty(models.Model):
     best_price = fields.Float(compute='_compute_best_price',
                               string='Best Offer')
 
+    _sql_constraints = [
+        ('check_expected_price', 'CHECK (expected_price >= 0)', 'Amounts must be positive.'),
+        ('check_selling_price', 'CHECK (selling_price >= 0)', 'Amounts must be positive.')
+    ]
+
+    @api.constrains('selling_price')
+    def _check_selling_price(self):
+        for record in self:
+            if float_utils.float_compare(record.selling_price,
+                                         record.expected_price * 0.9, 2) == -1:
+                raise exceptions.ValidationError(
+                    'The selling price must be at least 90% of expected price.')
+
     @api.depends('living_area', 'garden_area')
     def _compute_total_area(self):
         for record in self:
-            record.total_area = record.living_area + record.garden_area
+            if record.living_area != 0 and record.garden_area != 0:
+                record.total_area = record.living_area + record.garden_area
+            else:
+                record.total_area = 0
 
     @api.depends('offer_ids.price')
     def _compute_best_price(self):
         for record in self:
-            record.best_price = max(record.mapped('offer_ids.price'))
+            if len(record.mapped('offer_ids.price')) > 0:
+                record.best_price = max(record.mapped('offer_ids.price'))
+            else:
+                record.best_price = 0
 
     @api.onchange('garden')
     def _onchange_garden(self):
