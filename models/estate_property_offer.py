@@ -5,6 +5,7 @@ from odoo import models, fields, api, exceptions
 class EstatePropertyOffer(models.Model):
     _name = 'estate.property.offer'
     _description = 'Estate property offer'
+    _order = 'price desc'
 
     price = fields.Float()
     status = fields.Selection(copy=False,
@@ -21,6 +22,9 @@ class EstatePropertyOffer(models.Model):
     date_deadline = fields.Date(compute='_compute_date_deadline',
                                 inverse='_inverse_date_deadline',
                                 string='Deadline')
+    property_type_id = fields.Many2one(related="property_id.property_type_id",
+                                       store=True, string='Type')
+
     _sql_constraints = [
         ('check_price', 'CHECK (price >= 0)', 'Offer price must be positive.')
     ]
