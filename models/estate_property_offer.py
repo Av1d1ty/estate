@@ -32,7 +32,8 @@ class EstatePropertyOffer(models.Model):
     @api.model
     def create(self, vals):
         prop = self.env['estate.property'].browse(vals['property_id'])
-        if max(prop.mapped('offer_ids.price')) > vals['price']:
+        if (len(prop.mapped('offer_ids.price')) > 0
+                and max(prop.mapped('offer_ids.price')) > vals['price']):
             raise exceptions.UserError('An offer with higher price already exists.')
         prop.state = 'offer_received'
         return super().create(vals)
