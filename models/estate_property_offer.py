@@ -29,6 +29,14 @@ class EstatePropertyOffer(models.Model):
         ('check_price', 'CHECK (price >= 0)', 'Offer price must be positive.')
     ]
 
+    @api.model
+    def create(self, vals):
+        prop = self.env['estate.property'].browse(vals['property_id'])
+        if max(prop.mapped('offer_ids.price')) > vals['price']:
+            raise exceptions.UserError('An offer with higher price already exists.')
+        prop.state = 'offer_received'
+        return super().create(vals)
+
     @api.depends('validity')
     def _compute_date_deadline(self):
         for record in self:
